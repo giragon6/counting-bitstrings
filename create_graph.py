@@ -3,57 +3,47 @@ import networkx as nx
 from graph import Graph
 from numpy import inf
 
-constraints = ["1111"]
-
-class GraphVisualization:
-    def __init__(self):
-        self.visual = []
-        
-    def add_edge(self, a, b):
-        temp = [a, b]
-        self.visual.append(temp)
-        
-    def visualize(self):
-        G = nx.DiGraph()
-        G.add_edges_from(self.visual)
-        nx.draw_networkx(G)
-        plt.show()
-        
-g = Graph()
-
-k = max([len(c) for c in constraints])
-
-suffixes = [""]
-
-for i in range(k-1):
-  new_suffixes = []
-  for s in suffixes:
-    if s+"0" not in constraints:
-      new_suffixes.append(s+"0") 
-    if s+"1" not in constraints:
-      new_suffixes.append(s+"1") 
-  suffixes = new_suffixes
-   
-for s in suffixes:
-  g.add_node(s)
-  for t in suffixes:
-    if s + t[-1] not in constraints and s[1::] + t[-1] == t:
-      g.add_edge(s, t)
+class BitstringGraph:
+  def __init__(self, constraints):
+    self.constraints = constraints
+    self.g = nx.DiGraph()
     
-adj = g.adjacency_matrix() 
-adj_arr = []
-for i, s in enumerate(adj):
-  adj_arr.append([])
-  rec = []
-  for k in adj[s].keys():
-    if adj[k][s] == 1:
-      adj_arr[i].append(1)
-      rec.append(f"{k}(n-1)")
-    else:
-      adj_arr[i].append(0)
-  print(f"{s}(n)={'+'.join(rec)}")
+    k = max([len(c) for c in constraints])
+
+    self.suffixes = [""]
+
+    for i in range(k-1):
+      new_suffixes = []
+      for s in self.suffixes:
+        if s+"0" not in constraints:
+          new_suffixes.append(s+"0") 
+        if s+"1" not in constraints:
+          new_suffixes.append(s+"1") 
+      self.suffixes = new_suffixes
       
-g_vis = GraphVisualization()  
-for e in g.edges():
-  g_vis.add_edge(e[0], e[1])
-g_vis.visualize()
+    for s in self.suffixes:
+      self.g.add_node(s)
+      for t in self.suffixes:
+        if s + t[-1] not in constraints and s[1::] + t[-1] == t:
+          self.g.add_edge(s, t)
+          
+    self.adj = nx.to_dict_of_lists(self.g)
+    
+    self.recs = {s: [] for s in self.adj}
+      
+    for s in self.adj:
+      for k in self.adj[s]:
+          self.recs[k].append((s,1))
+    
+  def show(self):
+    nx.draw_networkx(self.g)
+    plt.show()
+    
+  def print_recs(self):
+    for s in self.recs.keys():
+      print(f"{s}(n)={'+'.join([f"{r[0]}(n-{r[1]})" for r in self.recs[s]])}")
+
+constraints = ["000","11"]
+bsgraph = BitstringGraph(constraints)
+bsgraph.print_recs()
+bsgraph.show()
