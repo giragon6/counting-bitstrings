@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Counting Bitstrings Demonstration</title>
+</head>
+<body>
+  <label for="forbidden">Enter forbidden bitstring(s) below, comma-separated:</label><br>
+  <input id="forbidden" type="text" placeholder="000,11">
+
+  <button id="submitBs">Graph</button>
+
+  <div id="cy-container" style="width: 800px; height: 600px; border: 1px solid #ddd; margin-top: 12px;"></div>
+
+  <script type="module">
+    import cytoscape from '{{url_for('static', filename='cytoscape.esm.min.js')}}'
+
+    async function renderGraph() {
+      const forbiddenBitstringsVal = document.getElementById('forbidden').value.trim();
+      if (!forbiddenBitstringsVal) {
+        alert("Forbidden bitstring box is empty");
+        return
+      };
+
+      const resp = await fetch(`/graph.json?forbidden=${encodeURIComponent(forbiddenBitstringsVal)}`);
+      if (!resp.ok) {
+        alert('Failed to fetch graph');
+        return;
+      }
+      const data = await resp.json(); 
+
+      if (window.cyInstance) {
+        window.cyInstance.elements().remove();
+        window.cyInstance.add(data.nodes.concat(data.edges));
+        window.cyInstance.layout({ name: 'breadthfirst', fit: true }).run();
+      } else {
+        window.cyInstance = cytoscape({
+          container: document.getElementById('cy-container'),
+          elements: data.nodes.concat(data.edges),
+          style: [
+            {
+              selector: 'node',
+              style: {
+                'label': 'data(id)',
+                'background-color': '#66b2ff',
+                'text-valign': 'center',
+                'color': '#000'
+              }
+            },
+            {
+              selector: 'edge',
+              style: {
+                'curve-style': 'bezier',
+                'target-arrow-shape': 'triangle',
+                'arrow-scale': 0.7,
+                'line-color': '#ccc',
+                'target-arrow-color': '#ccc'
+              }
+            }
+          ],
+          layout: { name: 'breadthfirst', fit: true }
+        });
+      }
+    }
+
+    document.getElementById('submitBs').onclick = renderGraph;
+    
+  </script>
+</body>
+</html>
