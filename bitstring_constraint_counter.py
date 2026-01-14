@@ -22,11 +22,7 @@ def get_x(n, constraints=[]):
         bs = next(bs, constraints=constraints)
     return bs  
    
-def main(): 
-    parser = argparse.ArgumentParser(description="A CLI app to count how many bitstrings of each length can be made with one or more constraints (e.g., no '000')")
-    parser.add_argument("constraints", type=str, default="000,11 000", help="Constraints, comma-separated. Separate multiple constraints with commas. Separate multiple combinations of constraints with spaces.")
-    parser.add_argument("max_length", type=int, default=20, help="Length of bitstring to go up to. WARNING: Going above ~20 will result in long computation time and possible crashes!")
-    args = parser.parse_args()
+def main(args): 
     reps = args.max_length
     combos = args.constraints.split(" ")
     combos_bs = {}
@@ -46,4 +42,8 @@ def main():
     print(tabulate(table_bs, headers=combos))
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="A CLI app to count how many bitstrings of each length can be made with one or more constraints (e.g., no '000')")
+    parser.add_argument("constraints", type=str, default="000,11 000", help="Constraints, comma-separated. Separate multiple constraints with commas. Separate multiple combinations of constraints with spaces.")
+    parser.add_argument("max_length", type=int, default=20, help="Length of bitstring to go up to. WARNING: Going above ~20 will result in long computation time and possible crashes!")
+    args = parser.parse_args()
+    main(args)
