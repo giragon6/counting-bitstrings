@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, render_template, request
-from bitstring_graph import BitstringGraph
+from counting_bitstrings.bitstring_graph import BitstringGraph
 
 app = Flask(__name__)
 
