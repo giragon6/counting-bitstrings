@@ -7,16 +7,26 @@ class BitstringGraph:
     self.constraints = constraints
     self.g = nx.DiGraph()
     
-    k = max([len(c) for c in constraints])
+    lengths = [len(c) for c in constraints]
+    k = max(lengths)
+    unique_lengths = list(set(lengths))
 
     self.suffixes = [""]
 
     for i in range(k-1):
       new_suffixes = []
       for s in self.suffixes:
-        if s+"0" not in constraints:
+        legal0 = True
+        legal1 = True
+        for l in unique_lengths:
+          print(s + "0 and " + s + "1")
+          if s[l-1::]+"0" in constraints or (len(s) == l-1 and s+"0" in constraints):
+            legal0 = False
+          if s[l-1::]+"1" in constraints or (len(s) == l-1 and s+"1" in constraints):
+            legal1 = False
+        if legal0:
           new_suffixes.append(s+"0") 
-        if s+"1" not in constraints:
+        if legal1:
           new_suffixes.append(s+"1") 
       self.suffixes = new_suffixes
       
@@ -48,5 +58,6 @@ class BitstringGraph:
       print(f"{s[0]}(n)={'+'.join([f"{r[0]}(n-{r[1]})" for r in self.recs[s]])}")
       
 if __name__ == "__main__":
-  bsgraph = BitstringGraph(["110"])
+  bsgraph = BitstringGraph(["1010", "11"])
   bsgraph.print_recs()
+  bsgraph.show()
