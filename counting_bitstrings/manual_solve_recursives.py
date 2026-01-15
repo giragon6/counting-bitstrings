@@ -1,6 +1,6 @@
 from bitstring_graph import BitstringGraph
 
-constraints = ["001"]
+constraints = ["1010"]
 bsgraph = BitstringGraph(constraints)
 
 def as_equation(a, s, xn_a, xn_s):
