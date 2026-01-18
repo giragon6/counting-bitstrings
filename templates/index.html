@@ -6,7 +6,12 @@
 </head>
 <body>
   <label for="forbidden">Enter forbidden bitstring(s) below, comma-separated:</label><br>
-  <input id="forbidden" type="text" placeholder="000,11">
+  <input id="forbidden" type="text" placeholder="000,11"><br>
+
+  <label for="bsLength">Enter a bitstring length below:</label><br>
+  <input id="bsLength" type="number" placeholder="67">
+  <button id="submitGetTerm">Get number of possible bitstrings</button>
+  <p id="numPossible">Number of possible bitstrings that exclude forbidden substrings: </p><br>
 
   <button id="submitBs">Graph</button>
 
@@ -63,6 +68,25 @@
       }
     }
 
+    async function getTerm() {
+      const forbiddenBitstringsVal = document.getElementById('forbidden').value.trim();
+      const bsLengthVal = document.getElementById("bsLength").value.trim();
+      if (!bsLength) {
+        alert("Bitstring length is empty")
+      }
+
+      const resp = await fetch(`/get-term?forbidden=${encodeURIComponent(forbiddenBitstringsVal)}&n=${encodeURIComponent(bsLengthVal)}`);
+      if (!resp.ok) {
+        alert('Failed to fetch term');
+        return;
+      }
+      const termJson = await resp.json(); 
+      const term = JSON.parse(termJson)
+
+      document.getElementById("numPossible").innerHTML = `Number of possible bitstrings that exclude forbidden substrings: ${term}`
+    }
+
+    document.getElementById('submitGetTerm').onclick = getTerm;
     document.getElementById('submitBs').onclick = renderGraph;
     
   </script>
