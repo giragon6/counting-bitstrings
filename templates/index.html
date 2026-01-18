@@ -6,14 +6,13 @@
 </head>
 <body>
   <label for="forbidden">Enter forbidden bitstring(s) below, comma-separated:</label><br>
-  <input id="forbidden" type="text" placeholder="000,11"><br>
+  <input id="forbidden" type="text" placeholder="000,11">
+  <button id="submitBs">Graph</button><br>
 
   <label for="bsLength">Enter a bitstring length below:</label><br>
   <input id="bsLength" type="number" placeholder="67">
   <button id="submitGetTerm">Get number of possible bitstrings</button>
   <p id="numPossible">Number of possible bitstrings that exclude forbidden substrings: </p><br>
-
-  <button id="submitBs">Graph</button>
 
   <div id="cy-container" style="width: 800px; height: 600px; border: 1px solid #ddd; margin-top: 12px;"></div>
 
