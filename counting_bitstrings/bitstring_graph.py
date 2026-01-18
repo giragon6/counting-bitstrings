@@ -10,7 +10,7 @@ class BitstringGraph:
     self.g = nx.DiGraph()
     
     lengths = [len(c) for c in constraints]
-    k = max(lengths)
+    self.max_len_constraint = max(lengths)
     unique_lengths = list(set(lengths))
 
     self.suffixes = [""]
@@ -19,7 +19,7 @@ class BitstringGraph:
     # we need to include suffixes even if they're invalid
     # for the characteristic polynomial method of recursive
     # generation to work
-    for i in range(k-1):
+    for i in range(self.max_len_constraint-1):
       new_suffixes = []
       for s in self.suffixes:
         new_suffixes.append(s+"0")  
@@ -96,10 +96,18 @@ class BitstringGraph:
     # yippee! now we have a recursive!
     return solved_for_xn
     
-  def get_sequence(self):
-    pass
+  def get_term_explicitly(self, n):
+    # x_n = S*A^n-m+1*S^T where S and S^T are a row and column of 1s respectively
+    # and m is the length of the longest constraining bitstring
+    if n-self.max_len_constraint < -1:
+      raise ValueError(f"""Unable to get {n}th term of sequence because {n} is 
+                      longer than the max-length constraint, {self.max_len_constraint}""")
+    s = np.ones((1,self.max_len_constraint+1))
+    st = np.ones((self.max_len_constraint+1,1))
+    res = np.matmul(s,np.linalg.matrix_power(self.npadj,n-self.max_len_constraint+1))
+    res = np.matmul(res, st) 
+    return int(res[0][0])
   
 if __name__ == "__main__":
   bs = BitstringGraph(["000","11"])
-  bs.get_recursive()
-  bs.show()
+  print(bs.get_term_explicitly(5))
