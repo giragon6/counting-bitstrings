@@ -14,6 +14,7 @@ class BitstringGraph:
     unique_lengths = list(set(lengths))
 
     self.suffixes = [""]
+    self.manual_seq = {0: [""]}
 
     # horrifically inefficient method 
     # we need to include suffixes even if they're invalid
@@ -21,10 +22,18 @@ class BitstringGraph:
     # generation to work
     for i in range(self.max_len_constraint-1):
       new_suffixes = []
-      for s in self.suffixes:
-        new_suffixes.append(s+"0")  
-        new_suffixes.append(s+"1") 
+      self.manual_seq[i+1] = []
+      for s in self.suffixes:    
+        s0 = s+"0"      
+        if s0 not in constraints:
+          self.manual_seq[i+1].append(s0)  
+        new_suffixes.append(s0)
+        s1 = s+"1"     
+        if s1 not in constraints:
+          self.manual_seq[i+1].append(s1)
+        new_suffixes.append(s1) 
       self.suffixes = new_suffixes
+    print(self.manual_seq)
       
     for s in self.suffixes:
       self.g.add_node(s)
@@ -95,18 +104,32 @@ class BitstringGraph:
     solved_for_xn = sp.solve(rec, x(n), dict=True)
     # yippee! now we have a recursive!
     return solved_for_xn
+  
+  def get_term(self, n):
+    if n-self.max_len_constraint < 0:
+      return self.get_term_manually(n)
+    else:
+      return self.get_term_explicitly(n)
     
   def get_term_explicitly(self, n):
     # x_n = S*A^n-m+1*S^T where S and S^T are a row and column of 1s respectively
     # and m is the length of the longest constraining bitstring
-    if n-self.max_len_constraint < -1:
-      raise ValueError(f"""Unable to get {n}th term of sequence because {n} is 
+    if n-self.max_len_constraint < 0:
+      raise ValueError(f"""Unable to get {n}th term of sequence explicitly because {n} is 
                       longer than the max-length constraint, {self.max_len_constraint}""")
     s = np.ones((1,self.max_len_constraint+1))
     st = np.ones((self.max_len_constraint+1,1))
     res = np.matmul(s,np.linalg.matrix_power(self.npadj,n-self.max_len_constraint+1))
     res = np.matmul(res, st) 
     return int(res[0][0])
+  
+  def get_term_manually(self, n):
+    # use with ns for which n is longer than m
+    try:
+      term = len(self.manual_seq[n])
+    except KeyError:
+      raise ValueError(f"Could not retrieve term {n} manually!")
+    return term
   
 if __name__ == "__main__":
   bs = BitstringGraph(["000","11"])

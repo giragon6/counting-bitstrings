@@ -5,14 +5,21 @@
     <title>Counting Bitstrings Demonstration</title>
 </head>
 <body>
+  <h1>Counting Bitstrings</h1>  
+
   <label for="forbidden">Enter forbidden bitstring(s) below, comma-separated:</label><br>
   <input id="forbidden" type="text" placeholder="000,11">
-  <button id="submitBs">Graph</button><br>
+  <button id="submitBs">Graph</button><br><br>
 
   <label for="bsLength">Enter a bitstring length below:</label><br>
   <input id="bsLength" type="number" placeholder="67">
-  <button id="submitGetTerm">Get number of possible bitstrings</button>
-  <p id="numPossible">Number of possible bitstrings that exclude forbidden substrings: </p><br>
+  <button id="submitGetTerm">Get number of possible bitstrings</button><br>
+  <div id="numPossible">Number of possible bitstrings that exclude forbidden substrings: </div><br>
+
+  <label for="numTerms">Enter number of terms of sequence to generate below: </label><br>
+  <input id="numTerms" type="number" placeholder="10">
+  <button id="submitGenSeq">Generate sequence</button><br>
+  <div id="sequence">Sequence (starting from n=0): </div>
 
   <div id="cy-container" style="width: 800px; height: 600px; border: 1px solid #ddd; margin-top: 12px;"></div>
 
@@ -23,7 +30,7 @@
       const forbiddenBitstringsVal = document.getElementById('forbidden').value.trim();
       if (!forbiddenBitstringsVal) {
         alert("Forbidden bitstring box is empty");
-        return
+        return;
       };
 
       const resp = await fetch(`/graph.json?forbidden=${encodeURIComponent(forbiddenBitstringsVal)}`);
@@ -69,9 +76,14 @@
 
     async function getTerm() {
       const forbiddenBitstringsVal = document.getElementById('forbidden').value.trim();
+      if (!forbiddenBitstringsVal) {
+        alert("Forbidden bitstring box is empty");
+        return
+      };
       const bsLengthVal = document.getElementById("bsLength").value.trim();
-      if (!bsLength) {
+      if (!bsLengthVal) {
         alert("Bitstring length is empty")
+        return;
       }
 
       const resp = await fetch(`/get-term?forbidden=${encodeURIComponent(forbiddenBitstringsVal)}&n=${encodeURIComponent(bsLengthVal)}`);
@@ -85,9 +97,31 @@
       document.getElementById("numPossible").innerHTML = `Number of possible bitstrings that exclude forbidden substrings: ${term}`
     }
 
+    async function generateSequence() {
+      const forbiddenBitstringsVal = document.getElementById('forbidden').value.trim();
+      if (!forbiddenBitstringsVal) {
+        alert("Forbidden bitstring box is empty");
+        return;
+      };
+      const numTermsVal = document.getElementById("numTerms").value.trim();
+      if (!numTermsVal) {
+        alert("Number of terms is empty")
+        return;
+      }
+
+      const resp = await fetch(`/get-sequence?forbidden=${encodeURIComponent(forbiddenBitstringsVal)}&numTerms=${encodeURIComponent(numTermsVal)}`);
+      if (!resp.ok) {
+        alert('Failed to fetch sequence');
+        return;
+      }
+      const seq = await resp.json(); 
+
+      document.getElementById("sequence").innerHTML = `Sequence (starting from n=0): ${seq.join(", ")}`;
+    }
+
     document.getElementById('submitGetTerm').onclick = getTerm;
     document.getElementById('submitBs').onclick = renderGraph;
-    
+    document.getElementById('submitGenSeq').onclick = generateSequence;
   </script>
 </body>
 </html>
