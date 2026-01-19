@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_file
 from counting_bitstrings.bitstring_graph import BitstringGraph
 
 app = Flask(__name__)
@@ -51,6 +51,10 @@ def get_sequence():
 @app.route("/")
 def main():
   return render_template("index.html")
+
+@app.route("/overview")
+def overview():
+    return send_file('static/overview.pdf', mimetype='application/pdf')
 
 if __name__ == "__main__":
     app.run()
